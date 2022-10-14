@@ -59,8 +59,8 @@ class Model:
         val_in = tf.image.grayscale_to_rgb(val_in)
         #val_in = self.input_imgs
 
-        # LAYER 1
-        kernel = tf.Variable(tf.random.truncated_normal([7,7,3,64],stddev=0.1))
+
+        kernel = tf.Variable(tf.random.truncated_normal([7,7,3,32],stddev=0.1))
         conv = tf.nn.conv2d(input=val_in, filters=kernel, padding='SAME', strides=(1, 1, 1, 1))
         conv_norm = tf.compat.v1.layers.batch_normalization(conv, training=self.is_train)
         relu = tf.nn.relu(conv_norm)
@@ -70,18 +70,19 @@ class Model:
         # 2 blocks of 64
         
         # block starts count 1
-        # LAYER 2
         x_skip = relu
-        kernel = tf.Variable(tf.random.truncated_normal([3,3,64,64],stddev=0.1))
+        kernel = tf.Variable(tf.random.truncated_normal([3,3,32,64],stddev=0.1))
         conv = tf.nn.conv2d(input=relu, filters=kernel, padding='SAME', strides=(1, 1, 1, 1))
         conv_norm = tf.compat.v1.layers.batch_normalization(conv, training=self.is_train)
         relu = tf.nn.relu(conv_norm)
-        #-- val_in = tf.nn.max_pool2d(input=relu, ksize=(1, 2,2, 1),strides=(1, 2,2, 1),padding="VALID")
-
-        # LAYER 3
+        
         kernel = tf.Variable(tf.random.truncated_normal([3,3,64,64],stddev=0.1))
         conv = tf.nn.conv2d(input=relu, filters=kernel, padding='SAME', strides=(1, 1, 1, 1))
         conv_norm = tf.compat.v1.layers.batch_normalization(conv, training=self.is_train)
+        
+        kernel = tf.Variable(tf.random.truncated_normal([1,1,32,64],stddev=0.1))
+        x_skip = tf.nn.conv2d(input=x_skip, filters=kernel, padding='SAME', strides=(1, 1, 1, 1))
+        x_skip = tf.compat.v1.layers.batch_normalization(x_skip, training=self.is_train)
         relu = tf.nn.relu(tf.add(x_skip,conv_norm))
         
         # block ends count 1
@@ -89,15 +90,14 @@ class Model:
         # skip start
         
         # block starts count 2
-        # LAYER 4
+
         x_skip = relu
         kernel = tf.Variable(tf.random.truncated_normal([3,3,64,64],stddev=0.1))
         conv = tf.nn.conv2d(input=relu, filters=kernel, padding='SAME', strides=(1, 1, 1, 1))
         conv_norm = tf.compat.v1.layers.batch_normalization(conv, training=self.is_train)
         relu = tf.nn.relu(conv_norm)
-        #-- val_in = tf.nn.max_pool2d(input=relu, ksize=(1, 2,2, 1),strides=(1, 2,2, 1),padding="VALID")
         
-        # LAYER 5
+
         kernel = tf.Variable(tf.random.truncated_normal([3,3,64,64],stddev=0.1))
         conv = tf.nn.conv2d(input=relu, filters=kernel, padding='SAME', strides=(1, 1, 1, 1))
         conv_norm = tf.compat.v1.layers.batch_normalization(conv, training=self.is_train)
@@ -223,9 +223,6 @@ class Model:
         conv_norm = tf.compat.v1.layers.batch_normalization(conv, training=self.is_train)
         relu = tf.nn.relu(tf.add(x_skip,conv_norm))
         # block ends count 4
-        # relu = tf.nn.max_pool2d(input=relu, ksize=(1, 1,2, 1),strides=(1, 1,2, 1), padding='SAME')
-        # relu = tf.nn.max_pool2d(input=relu, ksize=(1, 1,2, 1),strides=(1, 1,2, 1), padding='SAME')
-        # relu = tf.nn.max_pool2d(input=relu, ksize=(1, 1,2, 1),strides=(1, 1,2, 1), padding='SAME')
 
         relu = tf.nn.max_pool2d(input=relu, ksize=(1, 1,2, 1),strides=(1, 1,2, 1), padding='SAME')
         relu = tf.nn.max_pool2d(input=relu, ksize=(1, 1,2, 1),strides=(1, 1,2, 1), padding='SAME')
@@ -246,12 +243,6 @@ class Model:
         conv = tf.nn.conv2d(input=relu, filters=kernel, padding='SAME', strides=(1, 2))
         conv_norm = tf.compat.v1.layers.batch_normalization(conv, training=self.is_train)
         relu = tf.nn.relu(conv_norm)
-        
-        
-        
-        
-        
-        
         
         self.cnn_out_4d = relu
         print("CNN output shape : ",relu.shape)
