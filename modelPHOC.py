@@ -252,7 +252,7 @@ class Model:
         rnn_in3d = tf.squeeze(self.cnn_out_4d, axis=[2])
 
         # basic cells which is used to build RNN
-        num_hidden = 128
+        num_hidden = 256
         cells = [tf.compat.v1.nn.rnn_cell.LSTMCell(num_units=num_hidden, state_is_tuple=True) for _ in
                  range(2)]  # 2 layers
 
